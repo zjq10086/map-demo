@@ -47,13 +47,10 @@
                 url:'/getData',
                 data:{dianStr:dian},
                 success:function (data) {
-                    console.log(data);
                     $.each(data,function(i,obj){
                         var points = obj.map(function (v) {
-                            console.log(v);
                             return new BMap.Point(v.lng,v.lat);
                         });
-                        console.log(points);
                         var polygon = new BMap.Polygon(points, {strokeColor:"blue", strokeWeight:2, strokeOpacity:0.5,fillColor:'blue',fillOpacity:0.3});  //创建多边形
                         map.addOverlay(polygon);
                     })
