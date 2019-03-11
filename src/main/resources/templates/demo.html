@@ -3,9 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <title>demo</title>
+    <style type="text/css">
+        body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;position: relative}
+        .chunk{
+            position: absolute;
+            left:0;
+            top:0;
+            width:200px;
+            height:200px;
+            background-color: #fff;
+        }
+    </style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=emYKzA0U3PuOstpG9tK4r5UpNy304IdT"></script>
+    <script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
 </head>
 <body>
-    <h1>demo</h1>
-<h2>test</h2>
+    <div id="allmap"></div>
+    <div class="chunk">
+        <div>点击获取经纬度</div>
+        <div class="lng-and-lat"></div>
+        <button type="button" id="confim">获取</button>
+        <button type="button" id="empty">清空点</button>
+        <!--<button type="button" id="clear">清除覆盖物</button>-->
+    </div>
 </body>
+<script type="text/javascript">
+    // 百度地图API功能
+    var map = new BMap.Map("allmap");
+    map.centerAndZoom("浙江省",12);
+    map.enableScrollWheelZoom();   //启用滚轮放大缩小，默认禁用
+    map.enableContinuousZoom();    //启用地图惯性拖拽，默认禁用
+    //单击获取点击的经纬度
+    map.addEventListener("click",function(e){
+        $('.lng-and-lat').append('<div class="lng-and-lat-li">'+e.point.lng + "," + e.point.lat+'</div>');
+        var dian = "";
+        if($('.lng-and-lat-li').text()){
+            map.clearOverlays();
+            $('.lng-and-lat-li').each(function () {
+                dian+=$(this).text()+";";
+            });
+            dian = dian.substring(0,dian.length-1);
+            $.ajax({
+                url:'/getData',
+                data:{dianStr:dian},
+                success:function (data) {
+                    console.log(data);
+                    $.each(data,function(i,obj){
+                        var points = obj.map(function (v) {
+                            console.log(v);
+                            return new BMap.Point(v.lng,v.lat);
+                        });
+                        console.log(points);
+                        var polygon = new BMap.Polygon(points, {strokeColor:"blue", strokeWeight:2, strokeOpacity:0.5,fillColor:'blue',fillOpacity:0.3});  //创建多边形
+                        map.addOverlay(polygon);
+                    })
+                }
+            })
+        }
+    });
+    $('#empty').click(function () {
+        $('.lng-and-lat').html('');
+    });
+    /*$('#clear').click(function () {
+        map.clearOverlays();
+    })*/
+    /*$('#confim').click(function () {
+
+    })*/
+</script>
 </html>
